@@ -7,6 +7,14 @@ const VehicleFeature = sequelize.define('VehicleFeature', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
     },
+    vehicle_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: 'vehicles',
+            key: 'id'
+        }
+    },
     title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -22,6 +30,14 @@ const VehicleFeature = sequelize.define('VehicleFeature', {
     sort_order: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+    },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+    },
+    is_general: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
     }
 }, {
     tableName: 'vehicle_features',

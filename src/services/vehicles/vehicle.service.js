@@ -14,7 +14,7 @@ const getVehicleBySlug = async (slug) => {
             {
                 model: VehicleFeature,
                 as: 'features',
-                attributes: ['title', 'subtitle', ['image_url', 'image']]
+                attributes: ['title', 'subtitle', 'description', ['image_url', 'image']]
             }
         ]
     });
@@ -64,4 +64,13 @@ const createVehicleDetails = async (vehicleData) => {
     }
 };
 
-module.exports = { getVehicleBySlug, createVehicleDetails };
+const getTopGeneralFeatures = async () => {
+    return await VehicleFeature.findAll({
+        where: { is_general: true },
+        attributes: ['title', 'subtitle', 'description', ['image_url', 'image']],
+        order: [['sort_order', 'ASC']],
+        limit: 3
+    });
+};
+
+module.exports = { getVehicleBySlug, createVehicleDetails, getTopGeneralFeatures };

@@ -48,4 +48,13 @@ const createVehicleDetails = async (req, res, next) => {
     }
 };
 
-module.exports = { getVehicleDetails, createVehicleDetails };
+const getTopGeneralFeatures = async (req, res, next) => {
+    try {
+        const features = await vehicleService.getTopGeneralFeatures();
+        res.status(200).json(features);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getVehicleDetails, createVehicleDetails, getTopGeneralFeatures };

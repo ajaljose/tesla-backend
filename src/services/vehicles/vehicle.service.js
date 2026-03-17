@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Vehicle = require('../../models/vehicles/vehicles.model');
 const VehicleStat = require('../../models/vehicles/vehicle-stat.model');
 const VehicleFeature = require('../../models/vehicles/vehicle-feature.model');
@@ -5,6 +6,7 @@ const VehicleFeature = require('../../models/vehicles/vehicle-feature.model');
 const getVehicleBySlug = async (slug) => {
     return await Vehicle.findOne({
         where: { slug },
+        attributes: ['brand', 'model', 'tagline', 'hero_image_url', 'price', 'range', 'top_speed', 'type'],
         include: [
             {
                 model: VehicleStat,
@@ -21,7 +23,7 @@ const getVehicleBySlug = async (slug) => {
 };
 
 const createVehicleDetails = async (vehicleData) => {
-    const { slug, hero, features } = vehicleData;
+    const { slug, hero, features, price, range, top_speed, type } = vehicleData;
     const { brand, model, tagline, heroImage, stats } = hero || {};
 
     const transaction = await Vehicle.sequelize.transaction();
@@ -32,7 +34,11 @@ const createVehicleDetails = async (vehicleData) => {
             brand,
             model,
             tagline,
-            hero_image_url: heroImage
+            hero_image_url: heroImage,
+            price,
+            range,
+            top_speed,
+            type
         }, { transaction });
 
         if (stats && stats.length > 0) {
@@ -73,4 +79,56 @@ const getTopGeneralFeatures = async () => {
     });
 };
 
-module.exports = { getVehicleBySlug, createVehicleDetails, getTopGeneralFeatures };
+const searchVehicles = async (filters, pagination) => {
+    const { name, model, range, type } = filters;
+    const { page = 1, limit = 10 } = pagination;
+    const offset = (page - 1) * limit;
+
+    const where = {};
+
+    if (name) {
+        where[Op.or] = [
+            { brand: { [Op.like]: `%${name}%` } },
+            { model: { [Op.like]: `%${name}%` } }
+        ];
+    }
+
+    if (model) {
+        where.model = { [Op.like]: `%${model}%` };
+    }
+
+    if (range) {
+        where.range = { [Op.gte]: range };
+    }
+
+    if (type) {
+        where.type = type;
+    }
+
+    const { count, rows } = await Vehicle.findAndCountAll({
+        where,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        attributes: [
+            'slug', 'brand', 'model', 'price', 'range', 
+            ['top_speed', 'topSpeed'], 
+            ['hero_image_url', 'imageUrl'], 
+            ['type', 'typeOfCar']
+        ],
+        order: [['createdAt', 'DESC']]
+    });
+
+    return {
+        vehicles: rows,
+        total: count,
+        page: parseInt(page),
+        totalPages: Math.ceil(count / limit)
+    };
+};
+
+module.exports = { 
+    getVehicleBySlug, 
+    createVehicleDetails, 
+    getTopGeneralFeatures, 
+    searchVehicles 
+};

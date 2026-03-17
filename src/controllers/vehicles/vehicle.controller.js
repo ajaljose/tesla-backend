@@ -15,6 +15,10 @@ const getVehicleDetails = async (req, res, next) => {
                 model: vehicle.model,
                 tagline: vehicle.tagline,
                 heroImage: vehicle.hero_image_url,
+                price: vehicle.price,
+                range: vehicle.range,
+                topSpeed: vehicle.top_speed,
+                type: vehicle.type,
                 stats: vehicle.stats
             },
             features: vehicle.features
@@ -37,6 +41,10 @@ const createVehicleDetails = async (req, res, next) => {
                 model: vehicle.model,
                 tagline: vehicle.tagline,
                 heroImage: vehicle.hero_image_url,
+                price: vehicle.price,
+                range: vehicle.range,
+                topSpeed: vehicle.top_speed,
+                type: vehicle.type,
                 stats: vehicle.stats
             },
             features: vehicle.features
@@ -57,4 +65,22 @@ const getTopGeneralFeatures = async (req, res, next) => {
     }
 };
 
-module.exports = { getVehicleDetails, createVehicleDetails, getTopGeneralFeatures };
+const listVehicles = async (req, res, next) => {
+    try {
+        const { name, model, range, type, page, limit } = req.query;
+        const result = await vehicleService.searchVehicles(
+            { name, model, range, type },
+            { page, limit }
+        );
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { 
+    getVehicleDetails, 
+    createVehicleDetails, 
+    getTopGeneralFeatures, 
+    listVehicles 
+};

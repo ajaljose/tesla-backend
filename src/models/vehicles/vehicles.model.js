@@ -29,6 +29,22 @@ const Vehicle = sequelize.define('Vehicle', {
     hero_image_url: {
         type: DataTypes.STRING,
         allowNull: true,
+    },
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+    },
+    range: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    top_speed: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: true,
     }
 }, {
     tableName: 'vehicles',

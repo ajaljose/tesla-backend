@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../../config/database');
 const VehicleStat = require('./vehicle-stat.model');
 const VehicleFeature = require('./vehicle-feature.model');
+const VehicleColor = require('./vehicle-color.model');
 
 const Vehicle = sequelize.define('Vehicle', {
     id: {
@@ -66,6 +67,15 @@ Vehicle.hasMany(VehicleFeature, {
     onDelete: 'CASCADE',
 });
 VehicleFeature.belongsTo(Vehicle, {
+    foreignKey: 'vehicle_id',
+});
+
+Vehicle.hasMany(VehicleColor, {
+    foreignKey: 'vehicle_id',
+    as: 'colors',
+    onDelete: 'CASCADE',
+});
+VehicleColor.belongsTo(Vehicle, {
     foreignKey: 'vehicle_id',
 });
 

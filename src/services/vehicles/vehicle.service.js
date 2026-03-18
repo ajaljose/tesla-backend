@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const Vehicle = require('../../models/vehicles/vehicles.model');
 const VehicleStat = require('../../models/vehicles/vehicle-stat.model');
 const VehicleFeature = require('../../models/vehicles/vehicle-feature.model');
+const VehicleColor = require('../../models/vehicles/vehicle-color.model');
 
 const getVehicleBySlug = async (slug) => {
     return await Vehicle.findOne({
@@ -17,13 +18,18 @@ const getVehicleBySlug = async (slug) => {
                 model: VehicleFeature,
                 as: 'features',
                 attributes: ['title', 'subtitle', 'description', ['image_url', 'image']]
+            },
+            {
+                model: VehicleColor,
+                as: 'colors',
+                attributes: ['color_name', 'color_code', 'image_url']
             }
         ]
     });
 };
 
 const createVehicleDetails = async (vehicleData) => {
-    const { slug, hero, features, price, range, top_speed, type } = vehicleData;
+    const { slug, hero, features, price, range, top_speed, type, colors } = vehicleData;
     const { brand, model, tagline, heroImage, stats } = hero || {};
 
     const transaction = await Vehicle.sequelize.transaction();
@@ -56,10 +62,22 @@ const createVehicleDetails = async (vehicleData) => {
                 vehicle_id: vehicle.id,
                 title: feature.title,
                 subtitle: feature.subtitle,
+                description: feature.description,
                 image_url: feature.image,
+                is_general: feature.is_general || false,
                 sort_order: index
             }));
             await VehicleFeature.bulkCreate(featuresData, { transaction });
+        }
+
+        if (colors && colors.length > 0) {
+            const colorsData = colors.map((color) => ({
+                vehicle_id: vehicle.id,
+                color_name: color.name,
+                color_code: color.code,
+                image_url: color.image
+            }));
+            await VehicleColor.bulkCreate(colorsData, { transaction });
         }
 
         await transaction.commit();
@@ -110,9 +128,9 @@ const searchVehicles = async (filters, pagination) => {
         limit: parseInt(limit),
         offset: parseInt(offset),
         attributes: [
-            'slug', 'brand', 'model', 'price', 'range', 
-            ['top_speed', 'topSpeed'], 
-            ['hero_image_url', 'imageUrl'], 
+            'slug', 'brand', 'model', 'price', 'range',
+            ['top_speed', 'topSpeed'],
+            ['hero_image_url', 'imageUrl'],
             ['type', 'typeOfCar']
         ],
         order: [['createdAt', 'DESC']]
@@ -126,9 +144,34 @@ const searchVehicles = async (filters, pagination) => {
     };
 };
 
-module.exports = { 
-    getVehicleBySlug, 
-    createVehicleDetails, 
-    getTopGeneralFeatures, 
-    searchVehicles 
+const getRandomVehicle = async () => {
+    return await Vehicle.findOne({
+        order: [Vehicle.sequelize.literal('RAND()')],
+        attributes: ['brand', 'model', 'tagline', 'hero_image_url', 'price', 'range', 'top_speed', 'type'],
+        include: [
+            {
+                model: VehicleStat,
+                as: 'stats',
+                attributes: ['value', 'label']
+            },
+            {
+                model: VehicleFeature,
+                as: 'features',
+                attributes: ['title', 'subtitle', 'description', ['image_url', 'image']]
+            },
+            {
+                model: VehicleColor,
+                as: 'colors',
+                attributes: ['color_name', 'color_code', 'image_url']
+            }
+        ]
+    });
+};
+
+module.exports = {
+    getVehicleBySlug,
+    createVehicleDetails,
+    getTopGeneralFeatures,
+    searchVehicles,
+    getRandomVehicle
 };

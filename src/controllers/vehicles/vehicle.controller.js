@@ -21,7 +21,8 @@ const getVehicleDetails = async (req, res, next) => {
                 type: vehicle.type,
                 stats: vehicle.stats
             },
-            features: vehicle.features
+            features: vehicle.features,
+            colors: vehicle.colors
         };
 
         res.status(200).json(response);
@@ -47,7 +48,8 @@ const createVehicleDetails = async (req, res, next) => {
                 type: vehicle.type,
                 stats: vehicle.stats
             },
-            features: vehicle.features
+            features: vehicle.features,
+            colors: vehicle.colors
         };
 
         res.status(201).json(response);
@@ -60,6 +62,36 @@ const getTopGeneralFeatures = async (req, res, next) => {
     try {
         const features = await vehicleService.getTopGeneralFeatures();
         res.status(200).json(features);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getRandomVehicleDetails = async (req, res, next) => {
+    try {
+        const vehicle = await vehicleService.getRandomVehicle();
+
+        if (!vehicle) {
+            return res.status(404).json({ message: "No vehicles found" });
+        }
+
+        const response = {
+            hero: {
+                brand: vehicle.brand,
+                model: vehicle.model,
+                tagline: vehicle.tagline,
+                heroImage: vehicle.hero_image_url,
+                price: vehicle.price,
+                range: vehicle.range,
+                topSpeed: vehicle.top_speed,
+                type: vehicle.type,
+                stats: vehicle.stats
+            },
+            features: vehicle.features,
+            colors: vehicle.colors
+        };
+
+        res.status(200).json(response);
     } catch (error) {
         next(error);
     }
@@ -78,9 +110,10 @@ const listVehicles = async (req, res, next) => {
     }
 };
 
-module.exports = { 
-    getVehicleDetails, 
-    createVehicleDetails, 
-    getTopGeneralFeatures, 
-    listVehicles 
+module.exports = {
+    getVehicleDetails,
+    createVehicleDetails,
+    getTopGeneralFeatures,
+    listVehicles,
+    getRandomVehicleDetails
 };

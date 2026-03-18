@@ -147,7 +147,7 @@ const searchVehicles = async (filters, pagination) => {
 const getRandomVehicle = async () => {
     return await Vehicle.findOne({
         order: [Vehicle.sequelize.literal('RAND()')],
-        attributes: ['brand', 'model', 'tagline', 'hero_image_url', 'price', 'range', 'top_speed', 'type'],
+        attributes: ['brand', 'model', 'tagline', 'hero_image_url', 'price', 'range', 'top_speed', 'type', 'slug'],
         include: [
             {
                 model: VehicleStat,
@@ -168,10 +168,30 @@ const getRandomVehicle = async () => {
     });
 };
 
+const getUniqueModels = async () => {
+    const models = await Vehicle.findAll({
+        attributes: ['model'],
+        group: ['model'],
+        raw: true
+    });
+    return models.map(m => m.model).filter(Boolean);
+};
+
+const getUniqueVehicleTypes = async () => {
+    const types = await Vehicle.findAll({
+        attributes: ['type'],
+        group: ['type'],
+        raw: true
+    });
+    return types.map(t => t.type).filter(Boolean);
+};
+
 module.exports = {
     getVehicleBySlug,
     createVehicleDetails,
     getTopGeneralFeatures,
     searchVehicles,
-    getRandomVehicle
+    getRandomVehicle,
+    getUniqueModels,
+    getUniqueVehicleTypes
 };

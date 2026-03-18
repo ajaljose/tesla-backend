@@ -77,6 +77,7 @@ const getRandomVehicleDetails = async (req, res, next) => {
 
         const response = {
             hero: {
+                slug: vehicle.slug,
                 brand: vehicle.brand,
                 model: vehicle.model,
                 tagline: vehicle.tagline,
@@ -110,10 +111,30 @@ const listVehicles = async (req, res, next) => {
     }
 };
 
+const getUniqueModels = async (req, res, next) => {
+    try {
+        const models = await vehicleService.getUniqueModels();
+        res.status(200).json(models);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getUniqueVehicleTypes = async (req, res, next) => {
+    try {
+        const types = await vehicleService.getUniqueVehicleTypes();
+        res.status(200).json(types);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getVehicleDetails,
     createVehicleDetails,
     getTopGeneralFeatures,
     listVehicles,
-    getRandomVehicleDetails
+    getRandomVehicleDetails,
+    getUniqueModels,
+    getUniqueVehicleTypes
 };

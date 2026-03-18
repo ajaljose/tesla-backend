@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0]18-Mar-2025
+### Added
+- Added vehicle validation schema and new vehicle routes for unique models and types
+
 ## [1.0.4]17-Mar-2025
 ### Changed
 - Added vehicle color model and integrated into vehicle details API
